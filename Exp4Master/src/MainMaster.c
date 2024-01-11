@@ -24,6 +24,7 @@ unsigned char RXdata = 0; // 受信データ、0で初期化
 
 int main()
 {
+    OSCCAL=0b01101010;
     InitTimer();
     InitUART(9600);
     InitSpeaker();
