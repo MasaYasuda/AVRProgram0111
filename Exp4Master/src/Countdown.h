@@ -13,11 +13,17 @@
 #include "Speaker.h"
 #include "Conveyor.h"
 
+void EnableCountdown();
+int ResultCheckCountdown(unsigned char RXdata);
+void DisableCountdown();
+
 int flagEnableCountdown = 0;
 
 // 開始
 void EnableCountdown()
 {
+     if (flagEnableCountdown == 1)
+          return;
      // Slaveに送信
      UARTTransmit(0b00100000);
      flagEnableCountdown = 1;

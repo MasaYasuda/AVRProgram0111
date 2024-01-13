@@ -10,7 +10,6 @@
 #include "Countdown.h"
 #include "CardScanner.h"
 #include "LightVariesLED.h"
-#include "WifiSwitch.h"
 
 const char WAITING = 0; // 待機状態を表す定数
 const char PLAYING = 1; // プレイ中状態を表す定数
@@ -24,7 +23,7 @@ unsigned char RXdata = 0; // 受信データ、0で初期化
 
 int main()
 {
-    OSCCAL=0b01101010;
+    // OSCCAL=0b01101010;
     InitTimer();
     InitUART(9600);
     InitSpeaker();
@@ -71,34 +70,38 @@ int main()
 
                 // イベントの生成
                 int randEventNum = rand() % 1000000; // ランダムなイベント番号を生成
-                if (randEventNum < 10)
+                if (randEventNum < 2)
                     EnableWeirdSound(); // WeirdSoundを有効にする
-                else if (randEventNum < 20)
+                else if (randEventNum < 4)
                     EnableJammerMotor(); // ジャマモーターを有効にする
-                else if (randEventNum < 30)
+                else if (randEventNum < 6)
                     EnableCountdown(); // カウントダウンを有効にする
-                else if (randEventNum < 40)
+                else if (randEventNum < 8)
                     EnableCardScanner(); // カードスキャナーを有効にする
-                else if (randEventNum < 50)
+                else if (randEventNum < 10)
                     EnableLightVariesLED(); // LEDの光を有効にする
 
                 //  イベント解除の確認
-                if (CheckButtonWeirdSound())                  // WeirdSoundのボタンをチェック
-                    DisableWeirdSound();                      // WeirdSoundを無効にする
-                if (CheckButtonJammerMotor())                 // ジャマモーターのボタンをチェック
-                    DisableJammerMotor();                     // ジャマモーターを無効にする
-                if (CheckCardScanner())                       // カードスキャナーをチェック
-                    DisableCardScanner();                     // カードスキャナーを無効にする
-                if (CheckVolumeLED())                         // LEDのボリュームをチェック
-                    DisableLightVariesLED();                  // LEDの点灯を停止する
-                if (ResultCheckCountdown(RXdata) && (flagRX)) // カウントダウンの結果と受信フラグをチェック
-                    DisableCountdown();                       // カウントダウンを無効にする
+                if (CheckButtonWeirdSound())  // WeirdSoundのボタンをチェック
+                    DisableWeirdSound();      // WeirdSoundを無効にする
+                if (CheckButtonJammerMotor()) // ジャマモーターのボタンをチェック
+                    DisableJammerMotor();     // ジャマモーターを無効にする
+                if (CheckCardScanner())       // カードスキャナーをチェック
+                    DisableCardScanner();     // カードスキャナーを無効にする
+                if (CheckVolumeLED())         // LEDのボリュームをチェック
+                    DisableLightVariesLED();  // LEDの点灯を停止する
+                if (flagRX)
+                {
+                    if (ResultCheckCountdown(RXdata)) // カウントダウンの結果と受信フラグをチェック
+                        DisableCountdown();                       // カウントダウンを無効にする
+                }
 
                 // イベントの状態遷移
                 ChangePhaseWeirdSound();     // WeirdSoundのフェーズを変更
                 ChangePhaseJammerMotor();    // ジャマモーターのフェーズを変更
                 ChangePhaseCardScanner();    // カードスキャナーのフェーズを変更
                 ChangePhaseLightVariesLED(); // LEDの光のフェーズを変更
+                ChangePhaseTmpDecelerate();
 
                 // コンベア上昇
                 if (CheckButtonConveyor())
@@ -153,7 +156,7 @@ int main()
             EnableSlot(); // スロットを有効にする
             while (1)
             {
-                MakeWaitingSound();
+                MakeSlotSound();
                 if (UARTCheck() > 0) // UARTにデータがあるかチェック
                 {
                     unsigned char RXdata = UARTReceive(); // UARTからデータを受信

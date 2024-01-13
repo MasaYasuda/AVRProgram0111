@@ -50,6 +50,13 @@ int WAITING_MUSIC_INDEX_LENGTH = 4;								// モード選択中のデフォル�
 unsigned int wAITING_MUSIC_INTERVALS[4] = {500, 500, 500, 500}; // 音の間隔
 unsigned int WAITING_MUSIC_PITCHS[4] = {F4, 0, C4, 0};			// 音の高さ
 
+// SLOT MODEのデフォルト音楽
+int IndexSlotMusic = 0;										 // 待機音楽の現在のインデックス
+unsigned long previousTimeSwitchedSlotMusic = 0;			 // 前回Indexを変更した時間
+int SLOT_MUSIC_INDEX_LENGTH = 4;							 // モード選択中のデフォルト音楽の長さ
+unsigned int SLOT_MUSIC_INTERVALS[4] = {500, 500, 500, 500}; // 音の間隔
+unsigned int SLOT_MUSIC_PITCHS[4] = {A4, 0, G4, 0};			 // 音の高さ
+
 // PLAYING MODEのデフォルト音楽
 int IndexPlayingMusic = 0;																									 // 再生音楽の現在のインデックス
 unsigned long previousTimeSwitchedPlayingMusic = 0;																			 // 前回Indexを変更した時間
@@ -119,7 +126,7 @@ void SoundOutput(unsigned int frequency)
 // タイマー割込みで実行される関数
 ISR(TIMER1_COMPA_vect)
 {
-	PINB ^= 0b00000010; // PB1の出力を反転する
+	PORTB ^= 0b00000010; // PB1の出力を反転する
 }
 
 void ResetMusic()
@@ -128,14 +135,13 @@ void ResetMusic()
 	previousTimeSwitchedPlayingMusic = 0; // 再生音楽の時間をリセット
 	IndexWaitingMusic = 0;				  // 待機音楽のインデックスをリセット
 	previousTimeSwitchedWaitingMusic = 0; // 待機音楽の時間をリセット
+	IndexSlotMusic = 0;					  // SLOT音楽のインデックスをリセット
+	previousTimeSwitchedSlotMusic = 0;	  // SLOT音楽の時間をリセット
 }
 
 // 初期化関数
 void InitSpeaker()
 {
-	// クロック校正
-	OSCCAL = 0b10000000; // クロック校正値を設定
-
 	DDRB |= 0b00000010;	 // PB1を出力設定にする
 	TCCR1A = 0b00000000; // CTCモードを設定する
 	TCCR1B = 0b00001001; // CTCモードと分周比(1)を設定する
@@ -157,7 +163,7 @@ void MakeWaitingSound()
 			IndexSoundEffect++;								// 効果音のインデックスを進める
 			previousTimeSwitchedSoundEffect = GetMillis();	// 時間を更新
 			pitch = soundEffectPitchs[IndexSoundEffect];	// 新しい効果音の高さを取得
-			if (IndexSoundEffect == soundEffectIndexLength) // 効果音が最後まで再生されたか
+			if (IndexSoundEffect >= soundEffectIndexLength) // 効果音が最後まで再生されたか
 			{
 				pitch = 0;				   // 音を停止
 				flagEnableSoundEffect = 0; // 効果音を無効にする
@@ -189,7 +195,7 @@ void MakePlayingSound()
 			IndexSoundEffect++;								// 効果音のインデックスを進める
 			previousTimeSwitchedSoundEffect = GetMillis();	// 時間を更新
 			pitch = soundEffectPitchs[IndexSoundEffect];	// 新しい効果音の高さを取得
-			if (IndexSoundEffect == soundEffectIndexLength) // 効果音が最後まで再生されたか
+			if (IndexSoundEffect >= soundEffectIndexLength) // 効果音が最後まで再生されたか
 			{
 				pitch = 0;				   // 音を停止
 				flagEnableSoundEffect = 0; // 効果音を無効にする
@@ -209,6 +215,38 @@ void MakePlayingSound()
 		if (flagEnableWeirdSound == 1)								 // WeirdSoundが有効なとき
 			if (pitch != 0)											 // pitchが0、すなわち元の音が"無音"ではないとき
 				pitch = (unsigned int)(((float)pitch * 0.62) + 100); // WeirdSoundのピッチを変更
+	}
+	SoundOutput(pitch); // 音を出力
+}
+
+void MakeSlotSound()
+{
+	int pitch = 0; // 再生する音の高さ
+
+	if (flagEnableSoundEffect == 1) // 効果音を鳴らすとき
+	{
+		pitch = soundEffectPitchs[IndexSoundEffect];												// 効果音の高さを取得
+		if (GetMillis() - previousTimeSwitchedSoundEffect > soundEffectIntervals[IndexSoundEffect]) // 次の効果音に移るタイミングか
+		{
+			IndexSoundEffect++;								// 効果音のインデックスを進める
+			previousTimeSwitchedSoundEffect = GetMillis();	// 時間を更新
+			pitch = soundEffectPitchs[IndexSoundEffect];	// 新しい効果音の高さを取得
+			if (IndexSoundEffect >= soundEffectIndexLength) // 効果音が最後まで再生されたか
+			{
+				pitch = 0;				   // 音を停止
+				flagEnableSoundEffect = 0; // 効果音を無効にする
+			}
+		}
+	}
+	else // 通常のスロット音を再生
+	{
+		pitch = SLOT_MUSIC_PITCHS[IndexSlotMusic];												// スロット音の高さを取得
+		if (GetMillis() - previousTimeSwitchedSlotMusic > SLOT_MUSIC_INTERVALS[IndexSlotMusic]) // 次の音に移るタイミングか
+		{
+			IndexSlotMusic = (IndexSlotMusic + 1) % SLOT_MUSIC_INDEX_LENGTH; // スロット音のインデックスを進める
+			previousTimeSwitchedSlotMusic = GetMillis();					 // 時間を更新
+			pitch = SLOT_MUSIC_PITCHS[IndexSlotMusic];						 // 新しいスロット音の高さを取得
+		}
 	}
 	SoundOutput(pitch); // 音を出力
 }
@@ -266,8 +304,6 @@ void ChangePhaseWeirdSound()
 
 void DisableWeirdSound()
 {
-	if (flagEnableWeirdSound == 0) // WeirdSoundが無効なら0を返す
-		return;
 	flagEnableWeirdSound = 0; // WeirdSoundを無効にする
 }
 

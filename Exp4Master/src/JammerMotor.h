@@ -11,6 +11,12 @@
 #include "Timer.h"
 #include "Speaker.h"
 
+void InitJammerMotor();
+void EnableJammerMotor();
+void ChangePhaseJammerMotor();
+int CheckButtonJammerMotor();
+void DisableJammerMotor();
+
 int flagEnableJammerMotor = 0;
 unsigned long timeEnableJammerMotor = 0;
 
@@ -65,5 +71,7 @@ void DisableJammerMotor()
     PORTB &= 0b11111011; // 出力オフ
     flagEnableJammerMotor = 0;
 }
+
+
 
 #endif // JAMMER_MOTOR_H

@@ -5,7 +5,6 @@
 #include "Timer.h"
 #include "UART.h"
 #include "ButtonsSlave.h"
-#include "CommunicationSlave.h"
 #include "LEDMatrix.h"
 
 
@@ -40,9 +39,7 @@ int OrderCheckSlot(unsigned char RXdata)
 // result:0=Failure, 1=Success, 2=Jackpot
 void SendResultSlot(unsigned char result)
 {
-    WaitComSignal();
     UARTTransmit(0b01000000 | result);
-    InitComSignal();
 }
 
 void Resetflag() // 再スタートのためのフラグリセット

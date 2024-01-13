@@ -7,6 +7,9 @@
 
 #include <avr/io.h>
 
+void InitFallSensor();
+int CheckFallSensor();
+
 void InitFallSensor()
 {
     DDRC &= 0b11110111;

@@ -2,6 +2,7 @@
 #define ADCONVERSION_H
 
 #include <avr/io.h>
+unsigned int AnalogInput(unsigned int pinnum);
 
 unsigned int AnalogInput(unsigned int pinnum)
 {

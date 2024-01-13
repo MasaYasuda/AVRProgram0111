@@ -5,7 +5,6 @@
 #include "Timer.h"
 #include "UART.h"
 #include "ButtonsSlave.h"
-#include "CommunicationSlave.h"
 #include "LEDMatrix.h"
 
 int flagEnableCountdown = 0;          // カウントダウンが有効かどうかのフラグ
@@ -35,6 +34,8 @@ void SendResultCountdown(unsigned char result)
 // 開始
 void EnableCountdown()
 {
+    if (flagEnableCountdown == 1)
+        return;
     flagEnableCountdown = 1;               // カウントダウンを有効にする
     timeEnableCountdown = GetMillis();     // 現在の時刻を取得
     flagSuccessedCountdown = 0;            // 成功フラグをリセット
@@ -43,7 +44,7 @@ void EnableCountdown()
 // 動作の更新
 void ChangePhaseCountdown()
 {
-    if (!flagEnableCountdown) // カウントダウンが無効なら何もしない
+    if (flagEnableCountdown == 0) // カウントダウンが無効なら何もしない
         return;
 
     unsigned long tmpTime = GetMillis() - timeEnableCountdown; // 経過時間を計算
@@ -95,9 +96,7 @@ void ChangePhaseCountdown()
         }
         else
         {
-            WaitComSignal();
             SendResultCountdown(1);
-            InitComSignal();
             DisableCountdown(); // カウントダウンを無効にする
         }
     }
@@ -109,9 +108,7 @@ void ChangePhaseCountdown()
         }
         else
         {
-            WaitComSignal();
             SendResultCountdown(0);
-            InitComSignal();
             DisableCountdown(); // カウントダウンを無効にする
         }
     }
@@ -126,6 +123,8 @@ int _CheckButtonCountdown()
 // 終了
 void DisableCountdown()
 {
+    if (flagEnableCountdown == 0)
+        return;
     OverlayMatrix(offlight, 0, 6, 16, 10); // LEDマトリックスを消灯
     flagEnableCountdown = 0;               // カウントダウンを無効にする
 }

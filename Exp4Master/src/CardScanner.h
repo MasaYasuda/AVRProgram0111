@@ -102,6 +102,8 @@ void ChangePhaseCardScanner()
 // 終了
 void DisableCardScanner()
 {
+    if (flagEnableCardScanner == 0)
+        return ;
     UARTTransmit(0b00010000); // Slaveに描画終了送信
     flagEnableCardScanner = 0;
 }

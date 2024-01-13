@@ -15,7 +15,7 @@
  * オーバーフロー1回あたりのマイクロ秒数 (=32000) = 65536 * 1 =65536
  */
 
-volatile uint64_t microsCount = 0; // 8Byteデータとして宣言,because GetMillis()のtimerMillisにてオーバーフローを防ぐため
+volatile uint64_t timerCount = 0; // 8Byteデータとして宣言,because GetMillis()のtimerMillisにてオーバーフローを防ぐため
 
 // タイマーの初期化関数
 void InitTimer()
@@ -29,7 +29,7 @@ void InitTimer()
 // タイマー0のオーバーフロー割り込みハンドラ
 ISR(TIMER0_OVF_vect)
 {
-    timerMicros++;
+    timerCount++;
 }
 
 /**
@@ -40,7 +40,7 @@ unsigned long GetMillis()
 {
     // cli(),sei()はtimerMicros読みとり中のtimerMicrosの更新を防ぐ
     cli();
-    unsigned long timerMillis = (unsigned long)(microsCount * 65536 / 1000);
+    unsigned long timerMillis = (unsigned long)(timerCount * 65536 / 1000);
     sei();
     return timerMillis; // ミリ秒カウンタの値を返す
 }

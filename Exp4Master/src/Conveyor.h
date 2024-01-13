@@ -11,6 +11,15 @@
 #include "Timer.h"
 #include "Speaker.h"
 
+void InitConveyor();
+void EnableConveyor();
+int CheckButtonConveyor();
+void ChangePhaseTmpDecelerate();
+void OutputConveyor(unsigned char value);
+void DisableConveyor();
+void TmpDecelerateConveyor();
+void SetDutyRateConveyor(unsigned char dutyRate);
+
 int flagEnableConveyor = 0;         // コンベアの有効フラグ
 unsigned char dutyRateConveyer = 0; // コンベアのデューティ比
 
@@ -62,9 +71,9 @@ void OutputConveyor(unsigned char value)
 {
     if (flagEnableConveyor == 0)                   // コンベアが無効の場合
         value = 0;                                 // 出力を0にする
-    else if (flagEnableTmpDecelerateConveyor == 1) // 一時減速が有効の場合
+    if (flagEnableTmpDecelerateConveyor == 1) // 一時減速が有効の場合
     {
-        value = (unsigned char)(((float)value) / 10); // 出力を1/10に減少
+        value = (unsigned char)(value / 3); // 出力を1/10に減少
     }
     // PWM出力の設定
     if (0 == value) // 出力が0の場合
@@ -95,5 +104,6 @@ void SetDutyRateConveyor(unsigned char dutyRate)
 {
     dutyRateConveyer = dutyRate; // dutyRateConveyerにdutyRateを設定する
 }
+
 
 #endif //_CONVEYOR_H_

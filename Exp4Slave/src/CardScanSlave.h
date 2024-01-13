@@ -8,7 +8,6 @@
 
 int flagEnableCardScanner = 0;
 
-
 // 0:無関係 1:起動 2:終了
 int OrderCheckCardScanner(unsigned char RXdata)
 {
@@ -20,10 +19,11 @@ int OrderCheckCardScanner(unsigned char RXdata)
         return 0;
 }
 
-
 // 開始
 void EnableCardScanner()
 {
+    if (flagEnableCardScanner == 1)
+        return;
     flagEnableCardScanner = 1;
     OverlayMatrix(SMatrix, 12, 0, 4, 5);
     OverlayMatrix(CMatrix, 8, 0, 4, 5);
@@ -34,6 +34,8 @@ void EnableCardScanner()
 // 終了
 void DisableCardScanner()
 {
+    if (flagEnableCardScanner == 0)
+        return;
     flagEnableCardScanner = 0;
     OverlayMatrix(offlight, 0, 0, 16, 5);
 }

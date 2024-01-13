@@ -12,6 +12,10 @@
 #include "Timer.h"
 #include "Speaker.h"
 
+void EnableSlot() ;
+void DisableSlot();
+int ResultCheckSlot(unsigned char RXdata);
+
 int flagEnableSlot = 0; // スロット有効フラグ
 
 void EnableSlot() // スロットを有効にする
@@ -50,5 +54,8 @@ int ResultCheckSlot(unsigned char RXdata) // スロットの結果をチェッ�
     else
         return 0;
 }
+
+
+
 
 #endif // SLOT_MASTER_H

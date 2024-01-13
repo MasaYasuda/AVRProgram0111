@@ -4,7 +4,6 @@
 #include "UART.h"
 #include "LEDMatrix.h"
 #include "ButtonsSlave.h"
-#include "CommunicationSlave.h"
 #include "CardScanSlave.h"
 #include "CountdownSlave.h"
 #include "SlotSlave.h"
@@ -16,11 +15,11 @@ char mode = 0;			// 現在のモードを保持する変数
 
 int main()
 {
+	OSCCAL=0xA3;
 	InitTimer(); // タイマーの初期化
 	InitUART(9600);
 	InitButtons();	 // ボタンの初期化
 	InitLEDMatrix(); // LEDマトリックスの初期化
-	InitComSignal();
 	mode = PLAYING; // 初期モードをプレイ中状態に設定
 
 	while (1)
@@ -41,6 +40,8 @@ int main()
 						DisableCardScanner();					 // カードスキャナーを無効にする
 					else if (OrderCheckSlot(RXdata))			 // スロットモード命令のチェック
 					{
+						DisableCardScanner();
+						DisableCountdown();
 						mode = SLOT; // モードをスロットモードに変更
 						break;		 // 内部ループを抜ける
 					}

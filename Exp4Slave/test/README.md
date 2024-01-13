@@ -22,20 +22,6 @@ Display Scan order
 Stop Scan order
 0b00010000
 
-## Master to WifiModule
-Confirm Connection(WaitingMode)
-0b10000001
-
-Tell Present Status
-0b1abcdef0
-----
-a:Slot
-b:Countdown
-c:Scan
-d:LighrVariesLED
-e:WeirdSound
-----
-
 ## Slave to Master
 Tell Slot Failure
 0b01000000
@@ -47,20 +33,3 @@ Tell Countdown Failure
 0b00100000
 Tell Countdown Success
 0b00100001
-
-## WifiModule to Slave
-beeing Connected 
-0b10000000
-Not Connected yet
-0b10000001
-
-Order Countdown
-0b10100000
-Order Scan
-0b10010000
-Order LightVariesLED
-0b10001000
-Order JammerMotor
-0b10000100
-Order WeirdSound
-0b10000010
