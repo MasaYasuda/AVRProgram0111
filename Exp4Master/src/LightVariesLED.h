@@ -65,7 +65,7 @@ void ChangePhaseLightVariesLED()
     if (flagEnableLightVariesLED == 0) // LEDが有効でない場合は何もしない
         return;
 
-    int diff = (int)(abs(targetLightVariesLED - AnalogInput(0)) / 2); // 目標値と現在値の差分の絶対値を計算
+    int diff = (int)(abs(targetLightVariesLED - AnalogInput(0)) / 1); // 目標値と現在値の差分の絶対値を計算
     if (diff > 255)                                                   // 差分が255を超える場合は255に制限
         diff = 255;
     int value = 255 - diff; // PWMの値を計算
@@ -100,7 +100,7 @@ int CheckVolumeLED()
         return 0;
 
     int diff = (int)abs(targetLightVariesLED - AnalogInput(0)); // 目標値と現在値の差分の絶対値を計算
-    if (diff == 0)                                              // 差分が0の場合
+    if (diff <3)                                              // 差分が0の場合
     {
         SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs);
         return 1;

@@ -8,7 +8,7 @@
 #include "LEDMatrix.h"
 
 int flagEnableCountdown = 0;          // カウントダウンが有効かどうかのフラグ
-unsigned int timeEnableCountdown = 0; // カウントダウン開始時刻
+unsigned long timeEnableCountdown = 0; // カウントダウン開始時刻
 
 int flagSuccessedCountdown = 0; // カウントダウン成功フラグ
 

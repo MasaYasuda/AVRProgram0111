@@ -15,12 +15,12 @@ char mode = 0;			// 現在のモードを保持する変数
 
 int main()
 {
-	OSCCAL=0xA3;
+	OSCCAL = 0xA3;
 	InitTimer(); // タイマーの初期化
 	InitUART(9600);
 	InitButtons();	 // ボタンの初期化
 	InitLEDMatrix(); // LEDマトリックスの初期化
-	mode = PLAYING; // 初期モードをプレイ中状態に設定
+	mode = PLAYING;	 // 初期モードをプレイ中状態に設定
 
 	while (1)
 	{

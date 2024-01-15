@@ -41,7 +41,7 @@ int ResultCheckSlot(unsigned char RXdata) // スロットの結果をチェッ�
     }
     else if (RXdata == 0b01000001) // アタリの場合
     {
-        SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SEFailedPitchs); // 成功音を設定
+        SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs); // 成功音を設定
         SetDutyRateConveyor(200);                                                // コンベアのデューティ比を中間に設定
         return 1;
     }

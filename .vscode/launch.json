@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/masab/Downloads/電電実験4/AVRProgram/Slave/TestCode",
-      "program": "c:/Users/masab/Downloads/電電実験4/AVRProgram/Slave/TestCode/build/Debug/outDebug",
+      "cwd": "c:/Users/masab/Downloads/電電実験4/AVRProgram/Exp4Slave/src",
+      "program": "c:/Users/masab/Downloads/電電実験4/AVRProgram/Exp4Slave/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

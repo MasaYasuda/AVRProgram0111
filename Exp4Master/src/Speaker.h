@@ -94,8 +94,7 @@ unsigned int SEFailedPitchs[4] = {B4, A4, F4, 0};		  // 失敗時効果音の高
 
 // WeirdSound関連
 int flagEnableWeirdSound = 0;			  // WeirdSoundを有効にするフラグ
-int timeEnableWeirdSound = 0;			  // WeirdSoundを有効にした時間
-unsigned long limitTimeWeirdSound = 5000; // WeirdSoundの制限時間
+unsigned long timeEnableWeirdSound = 0;			  // WeirdSoundを有効にした時間
 
 /**
  * @brief 音を出力する関数
