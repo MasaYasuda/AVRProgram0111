@@ -2,12 +2,14 @@
 #define ADCONVERSION_H
 
 #include <avr/io.h>
-unsigned int AnalogInput(unsigned int pinnum);
+
+// プロトタイプ宣言
+unsigned int AnalogInput(unsigned int pinnum); // アナログ値読みとり用関数
 
 unsigned int AnalogInput(unsigned int pinnum)
 {
-    ADMUX = 0b01000000 | (0b1111&pinnum); // AD変換ポート設定初期化(基準電圧はAVCC)
-    ADCSRA |= 0b11000000; // AD変換許可＆開始
+    ADMUX = 0b01000000 | (0b1111 & pinnum); // AD変換ポート設定初期化(基準電圧はAVCC)
+    ADCSRA |= 0b11000000;                   // AD変換許可＆開始
     while (0 == ((ADCSRA >> 4) & 0b1))
     {
     }
@@ -16,4 +18,4 @@ unsigned int AnalogInput(unsigned int pinnum)
     return result;
 }
 
-#endif //ADCONVERSION_H
+#endif // ADCONVERSION_H

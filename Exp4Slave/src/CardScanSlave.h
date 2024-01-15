@@ -6,9 +6,14 @@
 #include "UART.h"
 #include "LEDMatrix.h"
 
+// プロトタイプ宣言
+int OrderCheckCardScanner(unsigned char RXdata); // 受信データから命令をチェック (戻り値＝0:無関係 1:起動 2:終了)
+void EnableCardScanner();                        // 命令描画開始
+void DisableCardScanner();                       // 命令描画終了
+
+// グローバル変数
 int flagEnableCardScanner = 0;
 
-// 0:無関係 1:起動 2:終了
 int OrderCheckCardScanner(unsigned char RXdata)
 {
     if (RXdata == 0b00010001)
@@ -19,7 +24,6 @@ int OrderCheckCardScanner(unsigned char RXdata)
         return 0;
 }
 
-// 開始
 void EnableCardScanner()
 {
     if (flagEnableCardScanner == 1)
@@ -31,7 +35,6 @@ void EnableCardScanner()
     OverlayMatrix(NMatrix, 0, 0, 4, 5);
 }
 
-// 終了
 void DisableCardScanner()
 {
     if (flagEnableCardScanner == 0)

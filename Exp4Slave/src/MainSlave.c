@@ -15,7 +15,6 @@ char mode = 0;			// 現在のモードを保持する変数
 
 int main()
 {
-	OSCCAL = 0xA3;
 	InitTimer(); // タイマーの初期化
 	InitUART(9600);
 	InitButtons();	 // ボタンの初期化
@@ -52,7 +51,7 @@ int main()
 		}
 		if (mode == SLOT) // スロットモードの場合
 		{
-			Resetflag(); // フラグをリセット
+			Resetflag(); // 押下済みフラグをリセット
 			while (1)
 			{
 				UpdateflagButton();																// ボタンの状態を更新
@@ -74,7 +73,7 @@ int main()
 						OverlayBlinkMask();		   // 点滅マスクをオーバーレイ
 					LEDMatrixDisplay();			   // LEDマトリックスに表示
 				}
-				// Masterマイコンに結果を送信する処理をここに記述
+				// Masterマイコンに結果を送信
 				if (matchingRole == 0)
 					SendResultSlot(2); // 大当たり
 				else
@@ -82,14 +81,14 @@ int main()
 			}
 			else
 			{
-				while ((GetMillis() - timeSlotStopped) < 2000) // 0.5秒静止表示を行う
+				while ((GetMillis() - timeSlotStopped) < 2000) // 2秒間静止表示を行う
 					LEDMatrixDisplay();						   // LEDマトリックスに表示
 
-				// Masterマイコンに結果を送信する処理をここに記述
+				// Masterマイコンに結果を送信
 				SendResultSlot(0); // ハズレ
 			}
 
-			mode = PLAYING; // モードをスロットモードに戻す
+			mode = PLAYING; // モードをプレイ中状態に戻す
 		}
 	}
 }

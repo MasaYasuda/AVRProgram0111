@@ -7,26 +7,24 @@
 #include "ButtonsSlave.h"
 #include "LEDMatrix.h"
 
+// プロトタイプ宣言
+int OrderCheckSlot(unsigned char RXdata);  // 受信データからスロットの命令をチェック
+void SendResultSlot(unsigned char result); // スロットの結果送信
+void Resetflag();                          // 再スタートのためのフラグリセット
+void UpdateflagButton();                   // ボタンの押下を検出してフラグを更新
+void OverlaySlotRoles();                   // スロットの役をLEDマトリクスに描画する
+void UpdateSlotMatrix();                   // スロットのマトリクスを更新する
+void JudgeMatchingRoles();                 // 揃っている役の番号を判定する（揃っていない場合は4を返す）
+void OverlayBlinkMask();                   // 点滅するマスクを描画する
+void _CreateRolesMatrix();                 // 役揃いを計算するためのRolesMatrixを作成する
 
-/*********************************************************************
- * プロトタイプ宣言
- *********************************************************************/
-
-void UpdateflagButton();     // ボタンの押下状態を更新する関数
-void Resetflag();            // 揃いフラグをリセットする関数
-void JudgeMatchingRoles();   // 揃っている役の番号を返す関数（揃っていない場合4を返す）
-void OverlaySlotRoles();     // スロットの役をオーバーレイする関数
-void UpdateSlotMatrix();     // スロットのマトリクスを更新する関数
-void OverlayBlinkMask();     // 点滅マスクをオーバーレイする関数
-void _CreatePatternMatrix(); // 役揃いを簡便に計算するための行列(rolesMatrix)を作成する関数
-
+// グローバル変数
 int slotMatrix[3][4] = {{0, 5, 10, -5}, {0, -5, 10, 5}, {0, 10, 5, -5}}; // スロットの行列
 int rolesMatrix[3][4];                                                   // 役の行列
 int flagPressedButtons[3] = {0};                                         // ボタンが押されていたら1となるフラグ
 int flagStopedSlotLine[3] = {0};                                         // スロットの列が止まったら1となるフラグ
 int matchingRole = 0;                                                    // 揃っている役の番号（揃っていない場合）
 unsigned long timeChangedRolesPosition = 0;                              // 役の位置が変更された時間
-
 
 int OrderCheckSlot(unsigned char RXdata)
 {
@@ -36,13 +34,13 @@ int OrderCheckSlot(unsigned char RXdata)
         return 0;
 }
 
-// result:0=Failure, 1=Success, 2=Jackpot
 void SendResultSlot(unsigned char result)
 {
+    // result:0=Failure, 1=Success, 2=Jackpot
     UARTTransmit(0b01000000 | result);
 }
 
-void Resetflag() // 再スタートのためのフラグリセット
+void Resetflag()
 {
     for (int i = 0; i < 3; i++) // 各フラグをリセット
     {
@@ -51,7 +49,7 @@ void Resetflag() // 再スタートのためのフラグリセット
     }
 }
 
-void UpdateflagButton() // ボタンの押下の検出
+void UpdateflagButton()
 {
     if (CheckButtonL())            // ボタンLが押されたら
         flagPressedButtons[0] = 1; // ボタン0のフラグを1にする
@@ -61,20 +59,20 @@ void UpdateflagButton() // ボタンの押下の検出
         flagPressedButtons[2] = 1; // ボタン2のフラグを1にする
 }
 
-void OverlaySlotRoles() // スロットの役をオーバーレイする関数
+void OverlaySlotRoles()
 {
     for (int j = 0; j < 3; j++) // 各列について
     {
-        OverlayMatrix(zeroMatrix, 11 - (5 * j), slotMatrix[j][0], 5, 5);    // 0の役をオーバーレイ
-        OverlayMatrix(sevenMatrix, 11 - (5 * j), slotMatrix[j][1], 5, 5);   // 7の役をオーバーレイ
-        OverlayMatrix(xMatrix, 11 - (5 * j), slotMatrix[j][2], 5, 5);       // Xの役をオーバーレイ
-        OverlayMatrix(diamondMatrix, 11 - (5 * j), slotMatrix[j][3], 5, 5); // ダイヤの役をオーバーレイ
-        OverlayMatrix(offlight, 0, 15, 16, 1);                              // オフライトをオーバーレイ
-        OverlayMatrix(offlight, 0, 0, 1, 16);                               // オフライトをオーバーレイ
+        OverlayMatrix(zeroMatrix, 11 - (5 * j), slotMatrix[j][0], 5, 5);    // 0の役を描画
+        OverlayMatrix(sevenMatrix, 11 - (5 * j), slotMatrix[j][1], 5, 5);   // 7の役を描画
+        OverlayMatrix(xMatrix, 11 - (5 * j), slotMatrix[j][2], 5, 5);       // Xの役を描画
+        OverlayMatrix(diamondMatrix, 11 - (5 * j), slotMatrix[j][3], 5, 5); // ダイヤの役を描画
+        OverlayMatrix(offlight, 0, 15, 16, 1);                              // オフライトを描画
+        OverlayMatrix(offlight, 0, 0, 1, 16);                               // オフライトを描画
     }
 }
 
-void UpdateSlotMatrix() // スロットのマトリクスを更新する関数
+void UpdateSlotMatrix()
 {
     if (GetMillis() - timeChangedRolesPosition > 20) // 前回の役位置変更から20ms以上経過していたら
     {
@@ -98,9 +96,9 @@ void UpdateSlotMatrix() // スロットのマトリクスを更新する関数
     }
 }
 
-void JudgeMatchingRoles() // 揃っている役の番号を返す（揃っていない場合4を返す）
+void JudgeMatchingRoles() （揃っていない場合4を返す）
 {
-    _CreatePatternMatrix(); // 役の行列を作成
+    _CreateRolesMatrix(); // 役の行列を作成
     // 各行、各列、各斜めの揃い判定
     if ((rolesMatrix[0][0] == rolesMatrix[1][0]) && (rolesMatrix[0][0] == rolesMatrix[2][0])) // 0行目揃い判定
     {
@@ -125,7 +123,8 @@ void JudgeMatchingRoles() // 揃っている役の番号を返す（揃ってい
     else // 揃っていない場合
         matchingRole = 4;
 }
-void OverlayBlinkMask() // 点滅マスクをオーバーレイする関数
+
+void OverlayBlinkMask()
 {
     for (int j = 0; j < 3; j++) // 各列について
     {
@@ -133,7 +132,7 @@ void OverlayBlinkMask() // 点滅マスクをオーバーレイする関数
     }
 }
 
-void _CreatePatternMatrix() // 役揃いを簡便に計算するための行列(rolesMatrix)を作成する
+void _CreateRolesMatrix()
 {
     for (int h = 0; h < 3; h++) // 各列について
     {

@@ -1,5 +1,4 @@
 /**
- * @brief
  * ボタン　Slave
  * 出力　　Slave
  */
@@ -12,26 +11,22 @@
 #include "Timer.h"
 #include "Speaker.h"
 
-void EnableSlot() ;
-void DisableSlot();
-int ResultCheckSlot(unsigned char RXdata);
+// プロトタイプ宣言
+void EnableSlot();                         // スロットを有効にする
+void DisableSlot();                        // スロットを無効にする
+int ResultCheckSlot(unsigned char RXdata); // スロットの結果チェック
 
-int flagEnableSlot = 0; // スロット有効フラグ
+// グローバル宣言
+int flagEnableSlot = 0; // 有効フラグ
 
-void EnableSlot() // スロットを有効にする
+void EnableSlot()
 {
-    // Slaveに開始信号を送信
-    UARTTransmit(0b01000000);
+    UARTTransmit(0b01000000);                                                   // Slaveに開始信号を送信
     SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs); // 成功音を設定
     flagEnableSlot = 1;                                                         // スロットを有効にする
 }
 
-void DisableSlot() // スロットを無効にする
-{
-    flagEnableSlot = 0; // スロットを無効にする
-}
-
-int ResultCheckSlot(unsigned char RXdata) // スロットの結果をチェックする
+int ResultCheckSlot(unsigned char RXdata)
 {
     if (RXdata == 0b01000010) // 大当たりの場合
     {
@@ -42,7 +37,7 @@ int ResultCheckSlot(unsigned char RXdata) // スロットの結果をチェッ�
     else if (RXdata == 0b01000001) // アタリの場合
     {
         SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs); // 成功音を設定
-        SetDutyRateConveyor(200);                                                // コンベアのデューティ比を中間に設定
+        SetDutyRateConveyor(200);                                                   // コンベアのデューティ比を中間に設定
         return 1;
     }
     else if (RXdata == 0b01000000) // ハズレの場合
@@ -55,7 +50,9 @@ int ResultCheckSlot(unsigned char RXdata) // スロットの結果をチェッ�
         return 0;
 }
 
-
-
+void DisableSlot()
+{
+    flagEnableSlot = 0; // スロットを無効にする
+}
 
 #endif // SLOT_MASTER_H

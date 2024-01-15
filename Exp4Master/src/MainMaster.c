@@ -11,15 +11,15 @@
 #include "CardScanner.h"
 #include "LightVariesLED.h"
 
+// グローバル変数
+char mode = 0;          // 現在のモードを保持する変数
 const char WAITING = 0; // 待機状態を表す定数
 const char PLAYING = 1; // プレイ中状態を表す定数
 const char SLOT = 2;    // スロットモードを表す定数
-char mode = 0;          // 現在のモードを保持する変数
 
 unsigned long timeStartPlaying = 0; // プレイ開始時間を保持する変数
-
-int flagRX = 0;           // 受信フラグ、0で初期化
-unsigned char RXdata = 0; // 受信データ、0で初期化
+int flagRX = 0;                     // 受信フラグ
+unsigned char RXdata = 0;           // 受信データ
 
 int main()
 {
@@ -60,7 +60,6 @@ int main()
             {
                 MakePlayingSound(); // プレイ中の音を作成
 
-                // データ受信
                 flagRX = 0;          // 受信フラグをリセット
                 if (UARTCheck() > 0) // UARTにデータがあるかチェック
                 {
@@ -93,15 +92,15 @@ int main()
                 if (flagRX)
                 {
                     if (ResultCheckCountdown(RXdata)) // カウントダウンの結果と受信フラグをチェック
-                        DisableCountdown();                       // カウントダウンを無効にする
+                        DisableCountdown();           // カウントダウンを無効にする
                 }
 
-                // イベントの状態遷移
+                // イベントのフェーズ遷移
                 ChangePhaseWeirdSound();     // WeirdSoundのフェーズを変更
                 ChangePhaseJammerMotor();    // ジャマモーターのフェーズを変更
                 ChangePhaseCardScanner();    // カードスキャナーのフェーズを変更
                 ChangePhaseLightVariesLED(); // LEDの光のフェーズを変更
-                ChangePhaseTmpDecelerate();
+                ChangePhaseTmpDecelerate();  // 減速のフェーズを変更
 
                 // コンベア上昇
                 if (CheckButtonConveyor())
@@ -121,7 +120,7 @@ int main()
                     DisableConveyor();       // コンベアを無効にする
 
                     SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs); // 成功音を設定
-                    mode = SLOT;                                                                // モードをスロットモードに変更
+                    mode = SLOT;                                                                // スロットモードに変更
                     break;
                 }
 
@@ -164,7 +163,7 @@ int main()
                     {
                         DisableSlot();  // スロットを無効にする
                         mode = PLAYING; // モードをプレイ中状態に戻す
-                        break;          // 内側のwhileループを抜ける
+                        break;
                     }
                 }
             }

@@ -1,18 +1,3 @@
-#ifndef BUTTONS_SLAVE_H
-#define BUTTONS_SLAVE_H
-
-#include <avr/io.h>
-
-/*********************************************************************
- * プロトタイプ宣言
- *********************************************************************/
-
-void InitButtons();
-// 各ボタンの押下の検出
-int CheckButtonL();
-int CheckButtonC();
-int CheckButtonR();
-
 /**
  * スロットのボタン
  * ボタンL PD4
@@ -20,12 +5,23 @@ int CheckButtonR();
  * ボタンR PD3
  */
 
-void InitButtons(){
+#ifndef BUTTONS_SLAVE_H
+#define BUTTONS_SLAVE_H
+
+#include <avr/io.h>
+
+// プロトタイプ宣言
+void InitButtons(); // 初期化
+int CheckButtonL(); // 左ボタンの押下の検出
+int CheckButtonC(); // 中ボタンの押下の検出
+int CheckButtonR(); // 右ボタンの押下の検出
+
+void InitButtons()
+{
     DDRD &= 0b11100011;  // 入力モード
     PORTD |= 0b00011100; // プルアップ
 }
 
-// 各ボタンの押下の検出
 int CheckButtonL()
 {
     if (((PIND >> 4) & 0b1) == 0)
@@ -44,7 +40,7 @@ int CheckButtonC()
 }
 int CheckButtonR()
 {
-    if (((PIND >> 3) & 0b1 )== 0)
+    if (((PIND >> 3) & 0b1) == 0)
     {
         return 1;
     }

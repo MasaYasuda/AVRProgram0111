@@ -7,15 +7,18 @@
 #include "ButtonsSlave.h"
 #include "LEDMatrix.h"
 
-int flagEnableCountdown = 0;          // カウントダウンが有効かどうかのフラグ
+// プロトタイプ宣言
+int OrderCheckCountdown(unsigned char RXdata);  // 受信データからカウントダウン命令をチェック
+void SendResultCountdown(unsigned char result); // 結果を送信する　result:0=Failure, 1=Success
+void EnableCountdown();                         // カウントダウンを有効にする
+void ChangePhaseCountdown();                    // フェーズを変更する
+int _CheckButtonCountdown();                    // ボタンの状態をチェックする
+void DisableCountdown();                        // カウントダウンを無効にする
+
+// グローバル宣言
+int flagEnableCountdown = 0;           // カウントダウンが有効かどうかのフラグ
 unsigned long timeEnableCountdown = 0; // カウントダウン開始時刻
-
-int flagSuccessedCountdown = 0; // カウントダウン成功フラグ
-
-void EnableCountdown();      // カウントダウンを有効にする関数
-void ChangePhaseCountdown(); // カウントダウンの各フェーズを変更する関数
-int _CheckButtonCountdown(); // ボタンの状態を確認する関数
-void DisableCountdown();     // カウントダウンを無効にする関数
+int flagSuccessedCountdown = 0;        // カウントダウン成功フラグ
 
 int OrderCheckCountdown(unsigned char RXdata)
 {
@@ -25,13 +28,11 @@ int OrderCheckCountdown(unsigned char RXdata)
         return 0;
 }
 
-// result:0=Failure, 1=Success
 void SendResultCountdown(unsigned char result)
 {
     UARTTransmit(0b00100000 | result);
 }
 
-// 開始
 void EnableCountdown()
 {
     if (flagEnableCountdown == 1)
@@ -41,7 +42,7 @@ void EnableCountdown()
     flagSuccessedCountdown = 0;            // 成功フラグをリセット
     OverlayMatrix(offlight, 0, 5, 16, 11); // LEDマトリックスを初期状態に設定
 }
-// 動作の更新
+
 void ChangePhaseCountdown()
 {
     if (flagEnableCountdown == 0) // カウントダウンが無効なら何もしない
@@ -114,13 +115,11 @@ void ChangePhaseCountdown()
     }
 }
 
-// ボタンの状態確認
 int _CheckButtonCountdown()
 {
     return CheckButtonC(); // ボタンCの状態を返す
 }
 
-// 終了
 void DisableCountdown()
 {
     if (flagEnableCountdown == 0)

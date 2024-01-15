@@ -1,9 +1,3 @@
-/**
- * @brief
- * ボタン　Slave
- * 出力　　Slave
- */
-
 #ifndef COUNTDOWN_H
 #define COUNTDOWN_H
 
@@ -13,19 +7,19 @@
 #include "Speaker.h"
 #include "Conveyor.h"
 
-void EnableCountdown();
-int ResultCheckCountdown(unsigned char RXdata);
-void DisableCountdown();
+// プロトタイプ宣言
+void EnableCountdown();                         // 開始
+int ResultCheckCountdown(unsigned char RXdata); // カウントダウンの結果をチェックする
+void DisableCountdown();                        // 無効化
 
+// グローバル変数
 int flagEnableCountdown = 0;
 
-// 開始
 void EnableCountdown()
 {
-     if (flagEnableCountdown == 1)
+     if (flagEnableCountdown == 1) // 既に有効なら何もしない
           return;
-     // Slaveに送信
-     UARTTransmit(0b00100000);
+     UARTTransmit(0b00100000); // Slaveに開始命令を送信
      flagEnableCountdown = 1;
 }
 

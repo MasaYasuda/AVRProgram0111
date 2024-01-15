@@ -1,5 +1,4 @@
-/**
- * @details
+/*
  * ボタン　PB5
  * 出力　　PB3(OC2A) Timer2を使用
  * 参考文献: "試しながら学ぶAVR入門" p55
@@ -11,23 +10,23 @@
 #include "Timer.h"
 #include "Speaker.h"
 
-void InitConveyor();
-void EnableConveyor();
-int CheckButtonConveyor();
-void ChangePhaseTmpDecelerate();
-void OutputConveyor(unsigned char value);
-void DisableConveyor();
-void TmpDecelerateConveyor();
-void SetDutyRateConveyor(unsigned char dutyRate);
+// プロトタイプ宣言
+void InitConveyor();                              // コンベアを初期化する
+void EnableConveyor();                            // コンベアを有効にする
+int CheckButtonConveyor();                        // ボタンの状態を確認する
+void ChangePhaseTmpDecelerate();                  // 一時減速のフェーズを変更する
+void OutputConveyor(unsigned char value);         // コンベアに出力する
+void DisableConveyor();                           // コンベアを無効にする
+void TmpDecelerateConveyor();                     // 一時的に減速する設定する
+void SetDutyRateConveyor(unsigned char dutyRate); // デューティ比を設定する
 
-int flagEnableConveyor = 0;         // コンベアの有効フラグ
-unsigned char dutyRateConveyer = 0; // コンベアのデューティ比
+// グローバル変数
+int flagEnableConveyor = 0;         // コンベア有効フラグ
+unsigned char dutyRateConveyer = 0; // デューティ比
 
-// 一時減速（"フリーズ"）関連
 int flagEnableTmpDecelerateConveyor = 0;           // 一時減速の有効フラグ
 unsigned long timeEnableTmpDecelerateConveyor = 0; // 一時減速開始時刻
 
-// 初期化関数
 void InitConveyor()
 {
     DDRB &= 0b11011111;  // PB5を入力に設定
@@ -43,18 +42,17 @@ void EnableConveyor()
     flagEnableConveyor = 1; // コンベアを有効にする
 }
 
-// ボタンの状態確認
 int CheckButtonConveyor()
 {
     if (0 == ((PINB >> 5) & 0b1)) // ボタンが押されている（=0V）とき
         return 1;                 // ボタンが押されている
     else
-        return 0; // ボタンが押されていない
+        return 0;
 }
 
 void ChangePhaseTmpDecelerate()
 {
-    if (flagEnableConveyor == 0) // コンベアが無効の場合は何もしない
+    if (flagEnableConveyor == 0) // 無効の場合は何もしない
         return;
     if (flagEnableTmpDecelerateConveyor == 1) // 一時減速が有効の場合
     {
@@ -63,28 +61,29 @@ void ChangePhaseTmpDecelerate()
     }
 }
 
-/**
- * @brief 出力する
- * @param value 出力の大きさ(0~255)
- */
 void OutputConveyor(unsigned char value)
 {
-    if (flagEnableConveyor == 0)                   // コンベアが無効の場合
-        value = 0;                                 // 出力を0にする
+    if (flagEnableConveyor == 0)              // コンベアが無効の場合
+        value = 0;                            // 出力を0にする
     if (flagEnableTmpDecelerateConveyor == 1) // 一時減速が有効の場合
     {
         value = (unsigned char)(value / 3); // 出力を1/10に減少
     }
+
     // PWM出力の設定
+    /*
+     * @note 0でOCR2A=0としない理由(LightVariesLEDでも同様)
+     * デューティサイクルが0%（つまり、信号が常に「オフ」）でも、PWM信号は完全に0Vにはならなかったため。
+     */
     if (0 == value) // 出力が0の場合
     {
-        TCCR2A &= 0b01111111; // PWM出力無効
-        PORTB &= 0b11110111;
+        TCCR2A &= 0b01111111; // 割込み無効
+        PORTB &= 0b11110111;  // 0V出力
     }
     else // 出力が0以外の場合
     {
         TCCR2A |= 0b10000000; // PWM出力有効化
-        OCR2A = value;        // OCR2AにPWMの値を設定
+        OCR2A = value;        // OCR2Aに値を設定
     }
 }
 
@@ -102,8 +101,7 @@ void TmpDecelerateConveyor()
 
 void SetDutyRateConveyor(unsigned char dutyRate)
 {
-    dutyRateConveyer = dutyRate; // dutyRateConveyerにdutyRateを設定する
+    dutyRateConveyer = dutyRate; // dutyRateを設定する
 }
-
 
 #endif //_CONVEYOR_H_

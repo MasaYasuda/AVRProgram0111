@@ -1,6 +1,6 @@
-/**
- * @details Timer1を使用（CTCモード）
- * PB1に出力　(一応変更可)
+/*
+ * Timer1を使用（CTCモード）
+ * PB1に出力（変更可能）
  * ボタン PB6
  */
 
@@ -12,21 +12,20 @@
 #include "Timer.h"
 #include "Conveyor.h"
 
-/*********************************************************************
- * プロトタイプ宣言
- *********************************************************************/
-void SoundOutput(unsigned int frequency);										  // 周波数に応じた音を出力
-void ResetMusic();																  // 音楽をリセット
-void InitSpeaker();																  // スピーカーを初期化
-void MakeWaitingSound();														  // 待機音を生成
-void MakePlayingSound();														  // 再生音を生成
-void SetSoundEffect(int length, unsigned int intervals[], unsigned int pitchs[]); // 効果音を設定
-void EnableWeirdSound();														  // WeirdSoundを有効化
-int CheckButtonWeirdSound();													  // WeirdSound用ボタンのチェック
-void ChangePhaseWeirdSound();													  // WeirdSoundのフェーズ変更
-void DisableWeirdSound();														  // WeirdSoundを無効化
+// プロトタイプ宣言
+void SoundOutput(unsigned int frequency);										  // 指定された周波数で音を出力する関数
+void ResetMusic();																  // 音楽再生に関する変数を初期化する
+void InitSpeaker();																  // スピーカーの初期設定を行う
+void MakeWaitingSound();														  // 待機時の音を生成する
+void MakePlayingSound();														  // 再生中の音を生成する
+void MakeSlotSound();															  // スロット音を生成する
+void SetSoundEffect(int length, unsigned int intervals[], unsigned int pitchs[]); // 効果音のパラメータを設定する
+void EnableWeirdSound();														  // WeirdSound機能を有効にする
+int CheckButtonWeirdSound();													  // WeirdSound用ボタンチェックする
+void ChangePhaseWeirdSound();													  // WeirdSoundの状態を変更する
+void DisableWeirdSound();														  // WeirdSound機能を無効にする
 
-// 音階の定義
+// 音階の周波数の定義
 #define C4 262	// ド
 #define D4 294	// レ
 #define E4 330	// ミ
@@ -46,23 +45,25 @@ void DisableWeirdSound();														  // WeirdSoundを無効化
 // WAITING MODEのデフォルト音楽
 int IndexWaitingMusic = 0;										// 待機音楽の現在のインデックス
 unsigned long previousTimeSwitchedWaitingMusic = 0;				// 前回Indexを変更した時間
-int WAITING_MUSIC_INDEX_LENGTH = 4;								// モード選択中のデフォルト音楽の長さ
-unsigned int wAITING_MUSIC_INTERVALS[4] = {500, 500, 500, 500}; // 音の間隔
-unsigned int WAITING_MUSIC_PITCHS[4] = {F4, 0, C4, 0};			// 音の高さ
+int WAITING_MUSIC_INDEX_LENGTH = 4;								// デフォルト音楽の長さ
+unsigned int WAITING_MUSIC_INTERVALS[4] = {500, 500, 500, 500}; // 間隔
+unsigned int WAITING_MUSIC_PITCHS[4] = {F4, 0, C4, 0};			// 高さ
 
 // SLOT MODEのデフォルト音楽
-int IndexSlotMusic = 0;										 // 待機音楽の現在のインデックス
+int IndexSlotMusic = 0;										 // スロット音楽の現在のインデックス
 unsigned long previousTimeSwitchedSlotMusic = 0;			 // 前回Indexを変更した時間
-int SLOT_MUSIC_INDEX_LENGTH = 4;							 // モード選択中のデフォルト音楽の長さ
-unsigned int SLOT_MUSIC_INTERVALS[4] = {500, 500, 500, 500}; // 音の間隔
-unsigned int SLOT_MUSIC_PITCHS[4] = {A4, 0, G4, 0};			 // 音の高さ
+int SLOT_MUSIC_INDEX_LENGTH = 4;							 // スロット音楽の長さ
+unsigned int SLOT_MUSIC_INTERVALS[4] = {500, 500, 500, 500}; // 間隔
+unsigned int SLOT_MUSIC_PITCHS[4] = {A4, 0, G4, 0};			 // 高さ
 
 // PLAYING MODEのデフォルト音楽
-int IndexPlayingMusic = 0;																									 // 再生音楽の現在のインデックス
-unsigned long previousTimeSwitchedPlayingMusic = 0;																			 // 前回Indexを変更した時間
-int PLAYING_MUSIC_INDEX_LENGTH = 16;																						 // プレイ中のデフォルト音楽の長さ
-unsigned int PLAYING_MUSIC_INTERVALS[16] = {400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400}; // 音の間隔
-unsigned int PLAYING_MUSIC_PITCHS[16] = {C4, C4, G4, G4, A4, A4, G4, 0, F4, F4, E4, E4, D4, D4, C4, 0};						 // きらきら星の音階
+int IndexPlayingMusic = 0;							// 再生音楽の現在のインデックス
+unsigned long previousTimeSwitchedPlayingMusic = 0; // 前回Indexを変更した時間
+int PLAYING_MUSIC_INDEX_LENGTH = 16;				// デフォルト音楽の長さ
+unsigned int PLAYING_MUSIC_INTERVALS[16] =
+	{400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400}; // 間隔
+unsigned int PLAYING_MUSIC_PITCHS[16] =
+	{C4, C4, G4, G4, A4, A4, G4, 0, F4, F4, E4, E4, D4, D4, C4, 0}; // きらきら星の音階
 
 // 効果音関連
 int flagEnableSoundEffect = 0;					   // 効果音を有効にするフラグ
@@ -72,35 +73,26 @@ int soundEffectIndexLength = 0;					   // 効果音の長さ
 unsigned int soundEffectIntervals[20] = {0};	   // 効果音の間隔
 unsigned int soundEffectPitchs[20] = {0};		   // 効果音の高さ
 
-// JammerMotor警告効果音
 int SEJammerMotorLength = 7;												  // JammerMotor警告効果音の長さ
 unsigned int SEJammerMotorIntervals[7] = {250, 250, 250, 250, 250, 250, 250}; // JammerMotor警告効果音の間隔
 unsigned int SEJammerMotorPitchs[7] = {B5, F5, B5, F5, B5, F5, 0};			  // JammerMotor警告効果音のピッチ
 
-// SlotJackpot効果音
 int SEJackpotLength = 7;												  // SlotJackpot効果音の長さ
 unsigned int SEJackpotIntervals[7] = {400, 400, 300, 100, 200, 600, 600}; // SlotJackpot効果音の間隔
 unsigned int SEJackpotPitchs[7] = {D4, B4, A4, C5, 0, B4, 0};			  // SlotJackpot効果音のピッチ
 
-// 成功時効果音
 int SESuccessedLength = 4;									 // 成功時効果音の長さ
 unsigned int SESuccessedIntervals[4] = {100, 100, 200, 100}; // 成功時効果音の間隔
 unsigned int SESuccessedPitchs[4] = {G5, E4, C6, 0};		 // 成功時効果音の高さ
 
-// 失敗時効果音
 int SEFailedLength = 4;									  // 失敗時効果音の長さ
 unsigned int SEFailedIntervals[4] = {100, 100, 200, 100}; // 失敗時効果音の間隔
 unsigned int SEFailedPitchs[4] = {B4, A4, F4, 0};		  // 失敗時効果音の高さ
 
 // WeirdSound関連
-int flagEnableWeirdSound = 0;			  // WeirdSoundを有効にするフラグ
-unsigned long timeEnableWeirdSound = 0;			  // WeirdSoundを有効にした時間
+int flagEnableWeirdSound = 0;			// WeirdSoundを有効にするフラグ
+unsigned long timeEnableWeirdSound = 0; // WeirdSoundを有効にした時間
 
-/**
- * @brief 音を出力する関数
- * @param frequency 目標の周波数（約7.63Hzから250kHzまで）
- */
-// 音を出力する関数を定義します
 void SoundOutput(unsigned int frequency)
 {
 	if (frequency == 0) // 指定周波数が0のときタイマーの割込みを停止する
@@ -110,35 +102,29 @@ void SoundOutput(unsigned int frequency)
 	}
 	else
 	{
-		// 周波数を2倍にします
-		unsigned int tmp = frequency * 2;
-		// OCR1AにCPUクロック周波数を周波数の2倍で割った値から1を引いた値を設定します。
-		// これにより、目標の周波数に対応するビットが設定されます。
-		OCR1A = F_CPU / tmp - 1;
-		// タイマー1の比較Aマッチ割り込みを許可します
-		TIMSK1 = 0b00000010;
-		// 割り込みを有効にします
-		sei();
+		OCR1A = (unsigned int)F_CPU / (frequency * 2) - 1; // 周波数から値を逆算
+		TIMSK1 = 0b00000010;							   // 比較Aマッチ割り込み許可
+		sei();											   // 割り込みを有効
 	}
 }
 
-// タイマー割込みで実行される関数
+// タイマー一致で発生する割込み
 ISR(TIMER1_COMPA_vect)
 {
-	PORTB ^= 0b00000010; // PB1の出力を反転する
+	PORTB ^= 0b00000010; // 出力反転
 }
 
 void ResetMusic()
 {
-	IndexPlayingMusic = 0;				  // 再生音楽のインデックスをリセット
-	previousTimeSwitchedPlayingMusic = 0; // 再生音楽の時間をリセット
-	IndexWaitingMusic = 0;				  // 待機音楽のインデックスをリセット
-	previousTimeSwitchedWaitingMusic = 0; // 待機音楽の時間をリセット
-	IndexSlotMusic = 0;					  // SLOT音楽のインデックスをリセット
-	previousTimeSwitchedSlotMusic = 0;	  // SLOT音楽の時間をリセット
+	// 変数をリセットする(モード変化時に最初から再生させるため)
+	IndexPlayingMusic = 0;
+	previousTimeSwitchedPlayingMusic = 0;
+	IndexWaitingMusic = 0;
+	previousTimeSwitchedWaitingMusic = 0;
+	IndexSlotMusic = 0;
+	previousTimeSwitchedSlotMusic = 0;
 }
 
-// 初期化関数
 void InitSpeaker()
 {
 	DDRB |= 0b00000010;	 // PB1を出力設定にする
@@ -172,7 +158,7 @@ void MakeWaitingSound()
 	else // 通常の待機音を再生
 	{
 		pitch = WAITING_MUSIC_PITCHS[IndexWaitingMusic];												 // 待機音の高さを取得
-		if (GetMillis() - previousTimeSwitchedWaitingMusic > wAITING_MUSIC_INTERVALS[IndexWaitingMusic]) // 次の音に移るタイミングか
+		if (GetMillis() - previousTimeSwitchedWaitingMusic > WAITING_MUSIC_INTERVALS[IndexWaitingMusic]) // 次の音に移るタイミングか
 		{
 			IndexWaitingMusic = (IndexWaitingMusic + 1) % WAITING_MUSIC_INDEX_LENGTH; // 待機音のインデックスを進める
 			previousTimeSwitchedWaitingMusic = GetMillis();							  // 時間を更新
@@ -211,9 +197,12 @@ void MakePlayingSound()
 			pitch = PLAYING_MUSIC_PITCHS[IndexPlayingMusic];						  // 新しい再生音の高さを取得
 		}
 
-		if (flagEnableWeirdSound == 1)								 // WeirdSoundが有効なとき
-			if (pitch != 0)											 // pitchが0、すなわち元の音が"無音"ではないとき
-				pitch = (unsigned int)(((float)pitch * 0.62) + 100); // WeirdSoundのピッチを変更
+		if (flagEnableWeirdSound == 1) // WeirdSoundが有効なとき
+			if (pitch != 0)			   // pitchが0、すなわち元の音が"無音"ではないとき
+			{
+				// WeirdSoundのピッチを変更 (C4の音程を基準に、高くなるほど元の音より低くなる)
+				pitch = (unsigned int)(((float)pitch * 0.62) + 100);
+			}
 	}
 	SoundOutput(pitch); // 音を出力
 }
@@ -250,8 +239,6 @@ void MakeSlotSound()
 	SoundOutput(pitch); // 音を出力
 }
 
-// SoundEffect部分
-// 効果音を設定
 void SetSoundEffect(int length, unsigned int intervals[], unsigned int pitchs[])
 {
 	IndexSoundEffect = 0;							 // 効果音のインデックスをリセット
@@ -266,7 +253,7 @@ void SetSoundEffect(int length, unsigned int intervals[], unsigned int pitchs[])
 }
 
 // WeiredSound部分
-//  開始
+
 void EnableWeirdSound()
 {
 	if (flagEnableWeirdSound == 1) // 既にWeirdSoundが有効なら何もしない
@@ -275,7 +262,6 @@ void EnableWeirdSound()
 	timeEnableWeirdSound = GetMillis(); // WeirdSoundを有効にした時間を記録
 }
 
-// ボタンの状態確認
 int CheckButtonWeirdSound()
 {
 	if (flagEnableWeirdSound == 0) // WeirdSoundが無効なら0を返す

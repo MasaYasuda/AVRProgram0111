@@ -1,8 +1,8 @@
-/**
- * @brief
+/*
  * スキャナー上 PC1
  * スキャナー下 PC2
- * フォトインタラプタ　カードが挟まっているときAnalog値はおよそ0になる。逆にカードがないときAnalog値はおよそ1023になる。
+ * フォトインタラプタ　カードが挟まっているときAnalog値はおよそ0になる。
+ * 逆にカードがないときAnalog値はおよそ1023になる。
  */
 #ifndef CARD_SCANNER_H
 #define CARD_SCANNER_H
@@ -14,28 +14,25 @@
 #include "Speaker.h"
 #include "Conveyor.h"
 
+// プロトタイプ宣言
 void InitCardScanner();        // 初期化関数
 void EnableCardScanner();      // 開始
 int CheckCardScanner();        // スキャナーの状態確認
 void ChangePhaseCardScanner(); // 動作の更新
 void DisableCardScanner();     // 終了
 
+// グローバル変数
 int flagEnableCardScanner = 0;
-
-unsigned int previousCardTop = 0;
-unsigned int previousCardBottom = 0;
-unsigned long timeExitCardTop = 0;
-
 unsigned long timeEnableCardScanner = 0;
-unsigned long limitTimeCardScanner = 10000;
+unsigned int previousCardTop = 0;    // 前回のセンサー上部の状態
+unsigned int previousCardBottom = 0; // 前回のセンサー下部の状態
+unsigned long timeExitCardTop = 0;   // カードがセンサー上部から抜けた時刻
 
-// 初期化関数
 void InitCardScanner()
 {
     DDRC &= 0b11111001;
 }
 
-// 開始
 void EnableCardScanner()
 {
     if (flagEnableCardScanner == 1)
@@ -45,7 +42,6 @@ void EnableCardScanner()
     flagEnableCardScanner = 1;
 }
 
-// スキャナーの状態確認
 int CheckCardScanner()
 {
     if (flagEnableCardScanner == 0)
@@ -54,7 +50,7 @@ int CheckCardScanner()
     unsigned long presentCardTop = AnalogInput(1);
     unsigned long presentCardBottom = AnalogInput(2);
 
-    if (previousCardBottom < 500) // 前回カード下部が差し込まれている場合
+    if (previousCardBottom < 500) // 前回カード下部が差し込まれていた場合
     {
         if (previousCardTop > 500) // 前回カード上部は抜かれていた場合
         {
@@ -63,10 +59,10 @@ int CheckCardScanner()
                 unsigned long timediff = GetMillis() - timeExitCardTop; // カード上部と下部それぞれの抜き取りの時間差を計算
                 if (timediff > 100 && timediff < 1000)                  // 時間差が一定の範囲内であったら
                 {
-                    previousCardTop = presentCardTop;
-                    previousCardBottom = presentCardBottom;
+                    previousCardTop = presentCardTop;       // 過去状態の更新
+                    previousCardBottom = presentCardBottom; // 過去状態の更新
                     {
-                        SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs);
+                        SetSoundEffect(SESuccessedLength, SESuccessedIntervals, SESuccessedPitchs); // 成功時効果音
                         return 1;
                     }
                 }
@@ -80,13 +76,11 @@ int CheckCardScanner()
             }
         }
     }
-
-    previousCardTop = presentCardTop;
-    previousCardBottom = presentCardBottom;
+    previousCardTop = presentCardTop;       // 過去状態の更新
+    previousCardBottom = presentCardBottom; // 過去状態の更新
     return 0;
 }
 
-// 動作の更新
 void ChangePhaseCardScanner()
 {
     if (flagEnableCardScanner == 0)
@@ -99,11 +93,10 @@ void ChangePhaseCardScanner()
     }
 }
 
-// 終了
 void DisableCardScanner()
 {
     if (flagEnableCardScanner == 0)
-        return ;
+        return;
     UARTTransmit(0b00010000); // Slaveに描画終了送信
     flagEnableCardScanner = 0;
 }

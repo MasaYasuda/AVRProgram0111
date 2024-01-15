@@ -7,13 +7,14 @@
 
 #include <avr/io.h>
 
-void InitFallSensor();
-int CheckFallSensor();
+// プロトタイプ宣言
+void InitFallSensor(); // 初期化
+int CheckFallSensor(); // チェック
 
 void InitFallSensor()
 {
     DDRC &= 0b11110111;
-    PORTC|= 0b00001000;
+    PORTC |= 0b00001000;
 }
 
 int CheckFallSensor()

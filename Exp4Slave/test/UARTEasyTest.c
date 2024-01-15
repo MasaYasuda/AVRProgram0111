@@ -6,7 +6,6 @@
 
 int main()
 {
-	OSCCAL = 0b01101111; // 内蔵クロックを校正
     InitTimer();                         // タイマーの初期化
     InitUART(9600);                      // UARTを9600bpsで初期化
     DDRB = 0xFF;                         // ポートBを出力に設定
