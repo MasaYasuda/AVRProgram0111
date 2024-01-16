@@ -1,3 +1,4 @@
+// SlotSlave.h
 #ifndef SLOT_SLAVE_H_
 #define SLOT_SLAVE_H_
 

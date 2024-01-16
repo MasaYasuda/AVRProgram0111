@@ -1,3 +1,4 @@
+// CardScannerSlave.h
 #ifndef CARD_SCANNER_SLAVE_H
 #define CARD_SCANNER_SLAVE_H
 

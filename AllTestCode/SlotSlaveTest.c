@@ -1,3 +1,4 @@
+// SlotSlaveTest.c
 #define F_CPU 1000000L
 #include "Timer.h"
 #include "UART.h"
@@ -12,9 +13,7 @@ int main()
     InitUART(9600);
     InitButtons();
     InitLEDMatrix();
-
-    // メインループ
-    while (1)
+    while (1) // メインループ
     {
         // LEDマトリックスをオフにする
         OverlayMatrix(offlight, 0, 0, 16, 16);
@@ -46,10 +45,8 @@ int main()
                 break;
         }
 
-        // スロットが止まった時間を取得
-        unsigned long timeSlotStopped = GetMillis();
-        // 小役揃い判定を行う
-        JudgeMatchingRoles();
+        unsigned long timeSlotStopped = GetMillis(); // スロットが止まった時間を取得
+        JudgeMatchingRoles();                        // 小役揃い判定を行う
         // 揃っている場合の処理
         if (matchingRole != 4)
         {

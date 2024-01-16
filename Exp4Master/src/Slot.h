@@ -1,3 +1,4 @@
+// Slot.h
 /**
  * ボタン　Slave
  * 出力　　Slave

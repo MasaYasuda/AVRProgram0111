@@ -1,3 +1,4 @@
+// Speaker.h
 /*
  * Timer1を使用（CTCモード）
  * PB1に出力（変更可能）

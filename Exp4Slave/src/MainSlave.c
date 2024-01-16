@@ -1,3 +1,4 @@
+// MainSlave.c
 #define F_CPU 1000000L
 #include <avr/io.h>
 #include "Timer.h"
@@ -54,12 +55,13 @@ int main()
 			Resetflag(); // 押下済みフラグをリセット
 			while (1)
 			{
-				UpdateflagButton();																// ボタンの状態を更新
-				UpdateSlotMatrix();																// スロットマトリックスを更新
-				OverlaySlotRoles();																// スロットの役をオーバーレイ
-				LEDMatrixDisplay();																// LEDマトリックスに表示
-				if (flagStopedSlotLine[0] + flagStopedSlotLine[1] + flagStopedSlotLine[2] == 3) // 全ての列が止まったか判定
-					break;																		// 全ての列が止まっていたらループを抜ける
+				UpdateflagButton(); // ボタンの状態を更新
+				UpdateSlotMatrix(); // スロットマトリックスを更新
+				OverlaySlotRoles(); // スロットの役をオーバーレイ
+				LEDMatrixDisplay(); // LEDマトリックスに表示
+				// 全ての列が止まったか判定
+				if (flagStopedSlotLine[0] + flagStopedSlotLine[1] + flagStopedSlotLine[2] == 3)
+					break; // 全ての列が止まっていたらループを抜ける
 			}
 
 			unsigned long timeSlotStopped = GetMillis(); // スロットが止まった時間を取得

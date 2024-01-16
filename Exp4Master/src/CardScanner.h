@@ -1,3 +1,4 @@
+// CardScanner.h
 /*
  * スキャナー上 PC1 (ADC1)
  * スキャナー下 PC2 (ADC1)

@@ -1,7 +1,11 @@
+// Template.h
 #ifndef TEMPLATE_H
 #define TEMPLATE_H
 
 #include <avr/io.h>
+
+int flagEnableXX = 0;
+unsigned long timeXX = 0;
 
 // 初期化関数
 void Init();
@@ -15,18 +19,3 @@ void CheckButton();
 void Disable();
 
 #endif // TEMPLATE_H
-
-/**
- * |register name|
- * 0b11111111
- *   │││││││└ |
- *   ||||||└─ |
- *   |||||└── |
- *   ||||└─── |
- *   |||└──── |
- *   ||└───── |
- *   |└────── |
- *   └─────── |
- * 参考資料:mega88.pdf (p.)
- */
-// ┴

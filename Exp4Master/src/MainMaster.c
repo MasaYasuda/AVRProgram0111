@@ -1,3 +1,4 @@
+// MainMaster.c
 #define F_CPU 1000000L
 #include <stdlib.h>
 #include "Timer.h"
@@ -89,7 +90,7 @@ int main()
                     DisableCardScanner();     // カードスキャナーを無効にする
                 if (CheckVolumeLED())         // LEDのボリュームをチェック
                     DisableLightVariesLED();  // LEDの点灯を停止する
-                if (flagRX)//新しい受信データがある
+                if (flagRX)                   // 新しい受信データがある
                 {
                     if (ResultCheckCountdown(RXdata)) // カウントダウンの結果と受信フラグをチェック
                         DisableCountdown();           // カウントダウンを無効にする
