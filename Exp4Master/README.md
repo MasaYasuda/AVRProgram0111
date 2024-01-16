@@ -43,17 +43,3 @@ Countdown
 CardScanner         
 LightVariesLED 
 SlotMaster           
-
-MainMaster.c作成
-
-DisableCardScanner();
-DisableConveyor();
-DisableCountdown();
-DisableJammerMotor();
-DisableLightVariesLED();
-DisableWeirdSound();
-
-
-# 実験4残タスク　Wifi
-
- 

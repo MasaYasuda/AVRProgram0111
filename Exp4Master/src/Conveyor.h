@@ -27,12 +27,30 @@ unsigned char dutyRateConveyer = 0; // デューティ比
 int flagEnableTmpDecelerateConveyor = 0;           // 一時減速の有効フラグ
 unsigned long timeEnableTmpDecelerateConveyor = 0; // 一時減速開始時刻
 
+/**
+ * |TCCR2A|タイマ/カウンタ2制御レジスタA
+ * 0bxxxx0011
+ *   ││││││└┴ 波形生成種別|高速PWM動作なので11
+ *   ||||└┴── 予約|
+ *   ||└┴──── 比較B出力選択|
+ *   └┴────── 比較A出力選択|OC2A切断は00,高速PWMの非反転動作は10
+ * 参考資料:mega88.pdf (p.114)
+ *
+ * |TCCR2B|タイマ/カウンタ2制御レジスタB
+ * 0b00000001
+ *   │││││└┴┴ クロック選択|分周無しにするので001
+ *   ||||└─── 波形生成種別|高速PWM動作なので1
+ *   ||└┴──── 予約|
+ *   |└────── OC2B強制変更|PWM動作なので関係なし
+ *   └─────── OC2A強制変更|PWM動作なので関係なし
+ * 参考資料:mega88.pdf (p.116)
+ */
 void InitConveyor()
 {
-    DDRB &= 0b11011111;  // PB5を入力に設定
-    PORTB |= 0b00100000; // PB5にプルアップ抵抗を有効にする
+    DDRB &= 0b11011111;  // PB5:入力
+    PORTB |= 0b00100000; // PB5:プルアップ抵抗を有効
 
-    DDRB |= 0b00001000;   // PB3(OC2A)を出力に設定
+    DDRB |= 0b00001000;   // PB3(OC2A):出力
     TCCR2A |= 0b00000011; // タイマー2を設定（PWMモード）
     TCCR2B |= 0b00000001; // クロックを規定
 }
@@ -61,6 +79,7 @@ void ChangePhaseTmpDecelerate()
     }
 }
 
+//|OCR2A|タイマ/カウンタ2比較Aレジスタ  参考資料:mega88.pdf (p.117)
 void OutputConveyor(unsigned char value)
 {
     if (flagEnableConveyor == 0)              // コンベアが無効の場合

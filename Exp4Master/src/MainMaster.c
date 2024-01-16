@@ -5,7 +5,7 @@
 #include "Speaker.h"
 #include "Conveyor.h"
 #include "FallSensor.h"
-#include "SlotMaster.h"
+#include "Slot.h"
 #include "JammerMotor.h"
 #include "Countdown.h"
 #include "CardScanner.h"
@@ -61,10 +61,10 @@ int main()
                 MakePlayingSound(); // プレイ中の音を作成
 
                 flagRX = 0;          // 受信フラグをリセット
-                if (UARTCheck() > 0) // UARTにデータがあるかチェック
+                if (UARTCheck() > 0) // 受信バッファにデータがあるかチェック
                 {
                     flagRX = 1;             // 受信フラグをセット
-                    RXdata = UARTReceive(); // UARTからデータを受信
+                    RXdata = UARTReceive(); // 受信バッファUARTからデータを受信
                 }
 
                 // イベントの生成
@@ -89,7 +89,7 @@ int main()
                     DisableCardScanner();     // カードスキャナーを無効にする
                 if (CheckVolumeLED())         // LEDのボリュームをチェック
                     DisableLightVariesLED();  // LEDの点灯を停止する
-                if (flagRX)
+                if (flagRX)//新しい受信データがある
                 {
                     if (ResultCheckCountdown(RXdata)) // カウントダウンの結果と受信フラグをチェック
                         DisableCountdown();           // カウントダウンを無効にする

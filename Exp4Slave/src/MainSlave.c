@@ -4,7 +4,7 @@
 #include "UART.h"
 #include "LEDMatrix.h"
 #include "ButtonsSlave.h"
-#include "CardScanSlave.h"
+#include "CardScannerSlave.h"
 #include "CountdownSlave.h"
 #include "SlotSlave.h"
 

@@ -211,8 +211,8 @@ void LEDMatrixDisplay()
     {
         PORTC &= 0b11111101;                                                                 // ラッチ(PC1)をLOW
         unsigned int row = 0x8000 >> j;                                                      // アノード側の16ビットを生成(該当行だけ1)
-        unsigned char colH = _pallet[j] >> 8;                                                // 上位8ビット（列）を取得
-        unsigned char colL = _pallet[j] & 0xFF;                                              // 下位8ビット（列）を取得
+        unsigned char colH = _pallet[j] >> 8;                                                // カソード側側の上位8ビットを取得
+        unsigned char colL = _pallet[j] & 0xFF;                                              // カソード側側の下位8ビットを取得
         unsigned long data = ((unsigned long)row << 16) | ((unsigned long)colH << 8) | colL; // 行と列のデータを結合
         for (int i = 0; i < 32; i++)                                                         // 32回ループ
         {
@@ -221,7 +221,7 @@ void LEDMatrixDisplay()
             PORTC |= 0b00000100;                          // クロック(PC2)をHIGH
             PORTC &= 0b11111011;                          // クロック(PC2)をLOW
         }
-        PORTC |= 0b00000010; // ラッチ(PC1)をHIGHにしてデータの更新を適用
+        PORTC |= 0b00000010; // ラッチ(PC1)をHIGHにしてデータの更新
     }
 }
 

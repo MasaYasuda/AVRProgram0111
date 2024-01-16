@@ -24,6 +24,24 @@ int flagEnableLightVariesLED = 0;           // 有効フラグ
 unsigned long timeEnableLightVariesLED = 0; // LED点灯開始時刻
 unsigned int targetLightVariesLED = 0;      // LEDの目標点灯値
 
+/**
+ * |TCCR2A|タイマ/カウンタ2制御レジスタA
+ * 0bxxxx0011
+ *   ││││││└┴ 波形生成種別|高速PWM動作なので11
+ *   ||||└┴── 予約|
+ *   ||└┴──── 比較B出力選択|OC2B切断は00,高速PWMの非反転動作は10
+ *   └┴────── 比較A出力選択|
+ * 参考資料:mega88.pdf (p.114)
+ *
+ * |TCCR2B|タイマ/カウンタ2制御レジスタB (Conveyor.hと全く同様に定義)
+ * 0b00000001
+ *   │││││└┴┴ クロック選択|分周無しにするので001
+ *   ||||└─── 波形生成種別|高速PWM動作なので1
+ *   ||└┴──── 予約|
+ *   |└────── OC2B強制変更|PWM動作なので関係なし
+ *   └─────── OC2A強制変更|PWM動作なので関係なし
+ * 参考資料:mega88.pdf (p.116)
+ */
 void InitLightVariesLED()
 {
     DDRC &= 0b11111110;   // PC0を入力設定
@@ -56,6 +74,7 @@ void EnableLightVariesLED()
         targetLightVariesLED = 511; // 目標値を511に設定
 }
 
+//|OCR2B|タイマ/カウンタ2比較Bレジスタ  参考資料:mega88.pdf (p.117)
 void ChangePhaseLightVariesLED()
 {
     if (flagEnableLightVariesLED == 0) // 有効でない場合は何もしない

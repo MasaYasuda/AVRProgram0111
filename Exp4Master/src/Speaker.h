@@ -13,9 +13,9 @@
 #include "Conveyor.h"
 
 // プロトタイプ宣言
-void SoundOutput(unsigned int frequency);										  // 指定された周波数で音を出力する関数
-void ResetMusic();																  // 音楽再生に関する変数を初期化する
 void InitSpeaker();																  // スピーカーの初期設定を行う
+void ResetMusic();																  // 音楽再生に関する変数を初期化する
+void SoundOutput(unsigned int frequency);										  // 指定された周波数で音を出力する関数
 void MakeWaitingSound();														  // 待機時の音を生成する
 void MakePlayingSound();														  // 再生中の音を生成する
 void MakeSlotSound();															  // スロット音を生成する
@@ -93,25 +93,33 @@ unsigned int SEFailedPitchs[4] = {B4, A4, F4, 0};		  // 失敗時効果音の高
 int flagEnableWeirdSound = 0;			// WeirdSoundを有効にするフラグ
 unsigned long timeEnableWeirdSound = 0; // WeirdSoundを有効にした時間
 
-void SoundOutput(unsigned int frequency)
+/**
+ * |TCCR1A| タイマ/カウンタ1制御レジスタA
+ * 0b00000000
+ *   ││││││└┴ 波形生成種別|比較一致タイマ/カウンタ解除(CTC)動作動作なので00
+ *   ||||└┴── 予約|
+ *   ||└┴──── 比較B出力選択|00で標準ポート動作(OC1B切断)
+ *   └┴────── 比較A出力選択|00で標準ポート動作(OC1A切断)
+ * 参考資料:mega88.pdf (p.96)
+ *
+ *  |TCCR1B| タイマ/カウンタ1制御レジスタB
+ * 0b00001001
+ *   │││││└┴┴ クロック選択|分周なしにするので001
+ *   |||└┴─── 波形生成種別|比較一致タイマ/カウンタ解除(CTC)動作動作なので01
+ *   ||└───── 予約|
+ *   |└────── 捕獲起動入力端選択|特に許可しないのでデフォルト値で0のまま
+ *   └─────── 捕獲起動入力1雑音消去許可|特に許可しないのでデフォルト値で0のまま
+ * 参考資料:mega88.pdf (p.97)
+ */
+void InitSpeaker()
 {
-	if (frequency == 0) // 指定周波数が0のときタイマーの割込みを停止する
-	{
-		TIMSK1 = 0x00;		 // 割込みを停止する
-		PORTB &= 0b11111101; // PB1の出力をLOWに設定する
-	}
-	else
-	{
-		OCR1A = (unsigned int)F_CPU / (frequency * 2) - 1; // 周波数から値を逆算
-		TIMSK1 = 0b00000010;							   // 比較Aマッチ割り込み許可
-		sei();											   // 割り込みを有効
-	}
-}
+	DDRB |= 0b00000010;	 // PB1を出力設定にする
+	TCCR1A = 0b00000000; // CTCモードを設定する
+	TCCR1B = 0b00001001; // CTCモードと分周比(1)を設定する
 
-// タイマー一致で発生する割込み
-ISR(TIMER1_COMPA_vect)
-{
-	PORTB ^= 0b00000010; // 出力反転
+	DDRB &= 0b10111111;	 // PB6(ボタン)を入力設定にする
+	PORTB |= 0b01000000; // PB6(ボタン)をプルアップする
+	ResetMusic();		 // スピーカーの設定をリセット
 }
 
 void ResetMusic()
@@ -125,15 +133,39 @@ void ResetMusic()
 	previousTimeSwitchedSlotMusic = 0;
 }
 
-void InitSpeaker()
+// タイマ/カウンタ1比較A一致で発生する割込み 参考資料:mega88.pdf (p.46)
+ISR(TIMER1_COMPA_vect)
 {
-	DDRB |= 0b00000010;	 // PB1を出力設定にする
-	TCCR1A = 0b00000000; // CTCモードを設定する
-	TCCR1B = 0b00001001; // CTCモードと分周比(1)を設定する
+	PORTB ^= 0b00000010; // 出力反転
+}
 
-	DDRB &= 0b10111111;	 // PB6(ボタン)を入力設定にする
-	PORTB |= 0b01000000; // PB6(ボタン)をプルアップする
-	ResetMusic();		 // スピーカーの設定をリセット
+/**
+ * |OCR1A|タイマ/カウンタ1比較Aレジスタ（16ビット レジスタ）
+ * 参考資料:mega88.pdf (p.85,99)
+ *
+ * |TIMSK1|タイマ/カウンタ1割り込み許可レジスタ
+ * 0b000000x0
+ *   │││││││└ タイマ/カウンタ1溢れ割り込み許可|使用しないので0
+ *   ||||||└─ タイマ/カウンタ1比較A割り込み許可|必要に応じて1にする
+ *   |||||└── タイマ/カウンタ1比較B割り込み許可|使用しないので0
+ *   |||└┴─── 予約|
+ *   ||└───── タイマ/カウンタ1捕獲割り込み許可|使用しないので0
+ *   └┴────── 予約|
+ * 参考資料:mega88.pdf (p.100)
+ */
+void SoundOutput(unsigned int frequency)
+{
+	if (frequency == 0) // 指定周波数が0のときタイマーの割込みを停止する
+	{
+		TIMSK1 = 0x00;		 // 割込みを停止する
+		PORTB &= 0b11111101; // PB1の出力をLOWに設定する
+	}
+	else
+	{
+		OCR1A = (unsigned int)F_CPU / (frequency * 2) - 1; // 周波数から値を逆算
+		TIMSK1 = 0b00000010;							   // 比較Aマッチ割り込み許可
+		sei();											   // 割り込みを有効
+	}
 }
 
 void MakeWaitingSound()

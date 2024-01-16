@@ -3,8 +3,8 @@
  * 出力　　Slave
  */
 
-#ifndef SLOT_MASTER_H
-#define SLOT_MASTER_H
+#ifndef SLOT_H
+#define SLOT_H
 
 #include <avr/io.h>
 #include "UART.h"
@@ -55,4 +55,4 @@ void DisableSlot()
     flagEnableSlot = 0; // スロットを無効にする
 }
 
-#endif // SLOT_MASTER_H
+#endif // SLOT_H

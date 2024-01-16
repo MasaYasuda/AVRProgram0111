@@ -1,5 +1,5 @@
-#ifndef CARD_SCAN_SLAVE_H
-#define CARD_SCAN_SLAVE_H
+#ifndef CARD_SCANNER_SLAVE_H
+#define CARD_SCANNER_SLAVE_H
 
 #include <avr/io.h>
 #include "Timer.h"
@@ -43,4 +43,4 @@ void DisableCardScanner()
     OverlayMatrix(offlight, 0, 0, 16, 5);
 }
 
-#endif // CARD_SCAN_SLAVE_H
+#endif // CARD_SCANNER_SLAVE_H
